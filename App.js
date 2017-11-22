@@ -27,6 +27,9 @@ export default class App extends Component < {} > {
   //
   componentDidMount() {
     // 开启定位
+    MapLocationComponent.startLocation((longitude, latitude, radius) => {
+      console.log("经度：%f 纬度：%f 精确度：%d", longitude, latitude, radius);
+    });
   }
 
   //
@@ -44,7 +47,7 @@ export default class App extends Component < {} > {
         </Text>
         <Button type="primary" title="测试" onPress={(e)=>{
           // ToastExample.show('Awesome', ToastExample.SHORT);
-          MapLocationComponent.startLocation();
+          // MapLocationComponent.getLocation();
         }}></Button>
       </View>
     );
