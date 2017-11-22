@@ -5,11 +5,14 @@
  */
 
 import React, { Component } from 'react';
+import ToastExample from './ToastExample';
+
 import {
   Platform,
   StyleSheet,
   Text,
-  View
+  View,
+  Button
 } from 'react-native';
 
 const instructions = Platform.select({
@@ -19,7 +22,7 @@ const instructions = Platform.select({
     'Shake or press menu button for dev menu',
 });
 
-export default class App extends Component<{}> {
+export default class App extends Component < {} > {
   render() {
     return (
       <View style={styles.container}>
@@ -32,6 +35,7 @@ export default class App extends Component<{}> {
         <Text style={styles.instructions}>
           {instructions}
         </Text>
+        <Button type="primary" title="测试" onPress={(e)=>{ToastExample.show('Awesome', ToastExample.SHORT);}}></Button>
       </View>
     );
   }
