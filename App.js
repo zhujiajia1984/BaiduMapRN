@@ -6,6 +6,7 @@
 
 import React, { Component } from 'react';
 import ToastExample from './ToastExample';
+import MapLocationComponent from './BaiduLocation';
 
 import {
   Platform,
@@ -23,6 +24,12 @@ const instructions = Platform.select({
 });
 
 export default class App extends Component < {} > {
+  //
+  componentDidMount() {
+    // 开启定位
+  }
+
+  //
   render() {
     return (
       <View style={styles.container}>
@@ -35,7 +42,10 @@ export default class App extends Component < {} > {
         <Text style={styles.instructions}>
           {instructions}
         </Text>
-        <Button type="primary" title="测试" onPress={(e)=>{ToastExample.show('Awesome', ToastExample.SHORT);}}></Button>
+        <Button type="primary" title="测试" onPress={(e)=>{
+          // ToastExample.show('Awesome', ToastExample.SHORT);
+          MapLocationComponent.startLocation();
+        }}></Button>
       </View>
     );
   }
