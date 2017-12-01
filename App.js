@@ -7,6 +7,9 @@
 import React, { Component } from 'react';
 import ToastExample from './ToastExample';
 import MapLocationComponent from './BaiduLocation';
+import { PropTypes } from 'react';
+import { DeviceEventEmitter } from 'react-native';
+// import myImageView from './MyView'
 
 import {
   Platform,
@@ -24,31 +27,64 @@ const instructions = Platform.select({
 });
 
 export default class App extends Component < {} > {
+  constructor(props) {
+    super(props);
+    this.state = {
+      longitude: "",
+      latitude: "",
+      radius: "",
+      locationDescribe: "",
+      addr: "",
+      errorDetail: "",
+      errorCode: "",
+    }
+  }
+
   //
   componentDidMount() {
-    // 开启定位
-    MapLocationComponent.startLocation((longitude, latitude, radius) => {
-      console.log("经度：%f 纬度：%f 精确度：%d", longitude, latitude, radius);
+    // 定位开始
+    MapLocationComponent.startLocation(1000);
+    var that = this;
+    DeviceEventEmitter.addListener('myEvent', function(e: Event) {
+      console.log(e);
+      that.setState({
+        longitude: e.longitude,
+        latitude: e.latitude,
+        errorDetail: e.errorDetail,
+        radius: e.radius,
+        locationDescribe: e.locationDescribe,
+        addr: e.addr,
+        errorCode: e.errorCode,
+      })
     });
+  }
+  //
+  beginLocation() {
+    MapLocationComponent.stopLocation();
+    this.setState({
+      longitude: "",
+      latitude: "",
+      errorDetail: "",
+      radius: "",
+      locationDescribe: "",
+      addr: "",
+      errorCode: "",
+    })
   }
 
   //
   render() {
+    // const myViewTest = <myImageView ppp={"https://weiquaninfo.cn/images/123.jpg"}></myImageView>;
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit App.js
-        </Text>
-        <Text style={styles.instructions}>
-          {instructions}
-        </Text>
-        <Button type="primary" title="测试" onPress={(e)=>{
-          // ToastExample.show('Awesome', ToastExample.SHORT);
-          // MapLocationComponent.getLocation();
-        }}></Button>
+        <Button type="primary" title="结束定位" onPress={this.beginLocation.bind(this)}></Button>
+        <Text>{`定位结果：${this.state.errorDetail}`}</Text>
+        <Text>{`错误码：${this.state.errorCode}`}</Text>
+        <Text>{`经度：${this.state.longitude}`}</Text>
+        <Text>{`纬度：${this.state.latitude}`}</Text>
+        <Text>{`准度：${this.state.radius}`}</Text>
+        <Text>{`描述：${this.state.locationDescribe}`}</Text>
+        <Text>{`位置：${this.state.addr}`}</Text>
       </View>
     );
   }
