@@ -1,31 +1,19 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
 import React, { Component } from 'react';
-import ToastExample from './ToastExample';
+// import ToastExample from './ToastExample';
 import MapLocationComponent from './BaiduLocation';
-import { PropTypes } from 'react';
+// import { PropTypes } from 'react';
 import { DeviceEventEmitter } from 'react-native';
 // import myImageView from './MyView'
 
 import {
-  Platform,
   StyleSheet,
   Text,
   View,
-  Button
+  Button,
+  TouchableOpacity
 } from 'react-native';
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-    'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
-
+// 
 export default class App extends Component < {} > {
   constructor(props) {
     super(props);
@@ -37,16 +25,17 @@ export default class App extends Component < {} > {
       addr: "",
       errorDetail: "",
       errorCode: "",
+      isOnLocation: false,
     }
   }
 
   //
   componentDidMount() {
     // 定位开始
-    MapLocationComponent.startLocation(1000);
+    MapLocationComponent.initLocation(1000);
     var that = this;
     DeviceEventEmitter.addListener('myEvent', function(e: Event) {
-      console.log(e);
+      // console.log(e);
       that.setState({
         longitude: e.longitude,
         latitude: e.latitude,
@@ -58,18 +47,30 @@ export default class App extends Component < {} > {
       })
     });
   }
+
   //
-  beginLocation() {
-    MapLocationComponent.stopLocation();
-    this.setState({
-      longitude: "",
-      latitude: "",
-      errorDetail: "",
-      radius: "",
-      locationDescribe: "",
-      addr: "",
-      errorCode: "",
-    })
+  startLocation() {
+    if (!this.state.isOnLocation) {
+      MapLocationComponent.startLocation();
+      this.setState({ isOnLocation: true });
+    }
+  }
+
+  //
+  endLocation() {
+    if (this.state.isOnLocation) {
+      MapLocationComponent.stopLocation();
+      this.setState({
+        longitude: "",
+        latitude: "",
+        errorDetail: "",
+        radius: "",
+        locationDescribe: "",
+        addr: "",
+        errorCode: "",
+        isOnLocation: false
+      })
+    }
   }
 
   //
@@ -77,14 +78,23 @@ export default class App extends Component < {} > {
     // const myViewTest = <myImageView ppp={"https://weiquaninfo.cn/images/123.jpg"}></myImageView>;
     return (
       <View style={styles.container}>
-        <Button type="primary" title="结束定位" onPress={this.beginLocation.bind(this)}></Button>
-        <Text>{`定位结果：${this.state.errorDetail}`}</Text>
-        <Text>{`错误码：${this.state.errorCode}`}</Text>
-        <Text>{`经度：${this.state.longitude}`}</Text>
-        <Text>{`纬度：${this.state.latitude}`}</Text>
-        <Text>{`准度：${this.state.radius}`}</Text>
-        <Text>{`描述：${this.state.locationDescribe}`}</Text>
-        <Text>{`位置：${this.state.addr}`}</Text>
+        <Text style={styles.itemText}>{`定位结果：${this.state.errorDetail}`}</Text>
+        <Text style={styles.itemText}>{`错误码：${this.state.errorCode}`}</Text>
+        <Text style={styles.itemText}>{`经度：${this.state.longitude}`}</Text>
+        <Text style={styles.itemText}>{`纬度：${this.state.latitude}`}</Text>
+        <Text style={styles.itemText}>{`准度：${this.state.radius}`}</Text>
+        <Text style={styles.itemText}>{`描述：${this.state.locationDescribe}`}</Text>
+        <Text style={styles.itemText}>{`位置：${this.state.addr}`}</Text>
+        <View style={styles.btnWrapper}>
+          <TouchableOpacity style={styles.primaryBtn} onPress={this.startLocation.bind(this)}>
+            <Text style={styles.btnTextBegin}>开     始     定     位</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.btnWrapper}>
+          <TouchableOpacity style={styles.defaultBtn} onPress={this.endLocation.bind(this)}>
+            <Text style={styles.btnTextEnd}>结     束     定     位</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -92,19 +102,49 @@ export default class App extends Component < {} > {
 
 const styles = StyleSheet.create({
   container: {
+    display: 'flex',
+    flexDirection: 'column',
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#f7f7f7',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
+  itemText: {
+    marginBottom: 10,
   },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
+  primaryBtn: {
+    padding: 10,
+    backgroundColor: "#108ee9",
+    display: 'flex',
+    flexDirection: 'row',
+    flex: 1,
+    justifyContent: 'center',
+    borderRadius: 5,
   },
+  defaultBtn: {
+    padding: 10,
+    backgroundColor: "white",
+    display: 'flex',
+    flexDirection: 'row',
+    flex: 1,
+    justifyContent: 'center',
+    borderRadius: 5,
+    borderStyle: 'solid',
+    borderColor: '#dddddd',
+    borderWidth: 1,
+  },
+  btnTextBegin: {
+    color: "white",
+    fontWeight: '500',
+    fontSize: 16,
+  },
+  btnTextEnd: {
+    color: "black",
+    fontSize: 16,
+  },
+  btnWrapper: {
+    padding: 10,
+    display: 'flex',
+    flexDirection: 'row',
+  }
 });
