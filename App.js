@@ -9,8 +9,8 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert
 } from 'react-native';
 
 // 
@@ -31,7 +31,7 @@ export default class App extends Component < {} > {
 
   //
   componentDidMount() {
-    // 定位开始
+    // 初始化定位并监听
     MapLocationComponent.initLocation(1000);
     var that = this;
     DeviceEventEmitter.addListener('myEvent', function(e: Event) {
@@ -46,6 +46,30 @@ export default class App extends Component < {} > {
         errorCode: e.errorCode,
       })
     });
+
+    // 从服务器获取数据
+    // var url = "https://weiquaninfo.cn/login/getTableData";
+    // fetch(url, {
+    //     method: "GET",
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     }
+    //   })
+    //   .then(res => {
+    //     let contentType = res.headers.get("Content-Type");
+    //     if (res.status == 200 && contentType && contentType.includes("application/json")) {
+    //       return res.json();
+    //     } else {
+    //       throw new Error(`status:${res.status} contentType:${contentType}`);
+    //     }
+    //   })
+    //   .then(resJson => {
+    //     return resJson;
+    //   })
+    //   .catch(error => {
+    //     console.log(error);
+    //     Alert.alert(`获取服务器数据失败：${error.message}`);
+    //   })
   }
 
   //
