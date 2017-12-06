@@ -7,6 +7,7 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.myBaiduMap.BaiduMapViewPackage;
 import com.myBaiduMapLocation.BaiduLocationPackage;
 import com.myToastTest.AnExampleReactPackage;
 import com.myViewTest.MyViewManagerTestPackage;
@@ -28,7 +29,8 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
               new AnExampleReactPackage(),
               new BaiduLocationPackage(),
-              new MyViewManagerTestPackage()
+              new MyViewManagerTestPackage(),
+              new BaiduMapViewPackage()
       );
     }
 
