@@ -30,7 +30,7 @@ public class MainApplication extends Application implements ReactApplication {
               new AnExampleReactPackage(),
               new BaiduLocationPackage(),
               new MyViewManagerTestPackage(),
-              new BaiduMapViewPackage()
+              new BaiduMapViewPackage(getApplicationContext())
       );
     }
 
