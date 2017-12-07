@@ -6,22 +6,16 @@ import com.baidu.location.LocationClientOption;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.BDLocation;
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Callback;
-import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.myBaiduMap.BaiduMapViewManager;
 
 import android.support.annotation.Nullable;
 import android.util.Log;
-
-
-
-import java.util.Map;
-import java.util.HashMap;
 
 /**
  * Created by zjj on 2017/11/22.
@@ -29,7 +23,6 @@ import java.util.HashMap;
 
 public class BaiduLocationModule extends ReactContextBaseJavaModule {
     public LocationClient mLocationClient = null;
-    private Callback mlocationCallback;
     public  ReactContext  mContext;
 
     //
@@ -70,6 +63,10 @@ public class BaiduLocationModule extends ReactContextBaseJavaModule {
                 params.putString("locationDescribe",locationDescribe);
                 params.putString("addr",addr);
                 sendEvent(BaiduLocationModule.this.mContext, "myEvent",params);
+                // 地图模式发送数据
+                if(BaiduMapViewManager.misLocation){
+                    Log.d("mapIsLocation", "true");
+                }
             }else{
                 String desp = location.getLocTypeDescription();
                 Log.d("错误码：", Integer.toString(errorCode));

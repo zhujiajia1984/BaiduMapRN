@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Point;
 import android.view.View;
 
+
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
@@ -12,8 +13,6 @@ import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MapViewLayoutParams;
 import com.baidu.mapapi.model.LatLng;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
@@ -26,7 +25,9 @@ import com.facebook.react.uimanager.annotations.ReactProp;
 
 public class BaiduMapViewManager extends ViewGroupManager<MapView> {
     public static final String REACT_CLASS = "myMapView";
+    public static boolean misLocation = true;
     private ReadableArray childrenPoints;
+    MapView mMapView = null;
 
     public void initSDK(Context context) {
         SDKInitializer.initialize(context);
@@ -39,7 +40,8 @@ public class BaiduMapViewManager extends ViewGroupManager<MapView> {
 
     @Override
     public MapView createViewInstance(ThemedReactContext context) {
-        return new MapView(context);
+        this.mMapView = new MapView(context);
+        return this.mMapView;
     }
 
     @Override
@@ -73,4 +75,24 @@ public class BaiduMapViewManager extends ViewGroupManager<MapView> {
         }
     }
 
+    @ReactProp(name="zoom")
+    public void setZoom(MapView mapView, float zoom) {
+        if(zoom >= 0) {
+            MapStatus mapStatus = new MapStatus.Builder()
+                    .zoom(zoom)
+                    .build();
+            MapStatusUpdate mapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mapStatus);
+            mapView.getMap().setMapStatus(mapStatusUpdate);
+        }
+    }
+
+    @ReactProp(name="location")
+    public void setLocation(MapView mapView, Boolean isLocation) {
+        this.misLocation = isLocation;
+        if(isLocation) {
+            mapView.getMap().setMyLocationEnabled(true);
+        }else{
+            mapView.getMap().setMyLocationEnabled(false);
+        }
+    }
 }

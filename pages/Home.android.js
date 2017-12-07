@@ -25,6 +25,7 @@ var data = [];
 const mainColor = "#108ee9";
 const backTime = 2000;
 var lastBackBtnTime = "";
+var that = null;
 
 // 
 export default class Home extends Component < {} > {
@@ -42,12 +43,28 @@ export default class Home extends Component < {} > {
       isOnLocation: false,
       name: "",
     };
+    that = this;
   }
 
   //
   static navigationOptions = ({ navigation }) => ({
     headerTitleStyle: { color: 'white', alignSelf: 'center', paddingLeft: 40 },
-    headerRight: <TouchableOpacity style={styles.headerRightBtn} onPress={()=> navigation.navigate('MapPage')}>
+    headerRight: <TouchableOpacity style={styles.headerRightBtn} onPress={()=> {
+                    if (that.state.isOnLocation){
+                      MapLocationComponent.stopLocation();
+                      that.setState({
+                        longitude: "",
+                        latitude: "",
+                        errorDetail: "",
+                        radius: "",
+                        locationDescribe: "",
+                        addr: "",
+                        errorCode: "",
+                        isOnLocation: false
+                      })
+                    }
+                    navigation.navigate('MapPage');
+                  }}>
                   <Text style={{color: 'white',fontSize: 14}}>地图</Text>
                 </TouchableOpacity>
   });
