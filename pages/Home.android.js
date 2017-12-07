@@ -42,6 +42,11 @@ export default class Home extends Component < {} > {
       errorCode: "",
       isOnLocation: false,
       name: "",
+      height: "",
+      direction: "",
+      sn: "",
+      speed: "",
+      time: "",
     };
     that = this;
   }
@@ -60,7 +65,12 @@ export default class Home extends Component < {} > {
                         locationDescribe: "",
                         addr: "",
                         errorCode: "",
-                        isOnLocation: false
+                        isOnLocation: false,
+                        height: "",
+                        direction: "",
+                        sn: "",
+                        speed: "",
+                        time: "",
                       })
                     }
                     navigation.navigate('MapPage');
@@ -84,6 +94,11 @@ export default class Home extends Component < {} > {
         locationDescribe: e.locationDescribe,
         addr: e.addr,
         errorCode: e.errorCode,
+        height: e.height,
+        direction: e.direction,
+        sn: e.sn,
+        speed: e.speed,
+        time: e.time,
       })
 
       // 30秒上传一次
@@ -133,6 +148,11 @@ export default class Home extends Component < {} > {
           desp: e.locationDescribe,
           addr: e.addr,
           errCode: e.errorCode,
+          height: e.height,
+          direction: e.direction,
+          sn: e.sn,
+          speed: e.speed,
+          time: e.time,
         })
       }
     });
@@ -140,7 +160,7 @@ export default class Home extends Component < {} > {
     // 安卓返回键
     BackHandler.addEventListener('hardwareBackPress', function() {
       // N秒内再次点击后退出
-      if(lastBackBtnTime && ((lastBackBtnTime + backTime) > Date.now())){
+      if (lastBackBtnTime && ((lastBackBtnTime + backTime) > Date.now())) {
         // 退出APP
         MapLocationComponent.stopLocation();
         return false;
@@ -204,7 +224,12 @@ export default class Home extends Component < {} > {
         locationDescribe: "",
         addr: "",
         errorCode: "",
-        isOnLocation: false
+        height: "",
+        isOnLocation: false,
+        direction: "",
+        sn: "",
+        speed: "",
+        time: "",
       })
     }
   }
@@ -226,9 +251,14 @@ export default class Home extends Component < {} > {
       <Text style={styles.itemText}>{`景点名称：${this.state.name}`}</Text>
         <Text style={styles.itemText}>{`定位结果：${this.state.errorDetail}`}</Text>
         <Text style={styles.itemText}>{`错误码：${this.state.errorCode}`}</Text>
+        <Text style={styles.itemText}>{`定位时间：${this.state.time}`}</Text>
         <Text style={styles.itemText}>{`经度：${this.state.longitude}`}</Text>
         <Text style={styles.itemText}>{`纬度：${this.state.latitude}`}</Text>
         <Text style={styles.itemText}>{`准度：${this.state.radius}`}</Text>
+        <Text style={styles.itemText}>{`高度(GPS)：${this.state.height}米`}</Text>
+        <Text style={styles.itemText}>{`速度(GPS)：${this.state.speed}公里/小时`}</Text>
+        <Text style={styles.itemText}>{`方向(GPS)：${this.state.direction}度`}</Text>
+        <Text style={styles.itemText}>{`卫星数(GPS)：${this.state.sn}个`}</Text>
         <Text style={styles.itemText}>{`描述：${this.state.locationDescribe}`}</Text>
         <Text style={styles.itemText}>{`位置：${this.state.addr}`}</Text>
         <View style={styles.inputWrapper}>

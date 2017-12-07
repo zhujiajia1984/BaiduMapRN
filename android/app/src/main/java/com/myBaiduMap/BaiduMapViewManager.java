@@ -25,7 +25,7 @@ import com.facebook.react.uimanager.annotations.ReactProp;
 
 public class BaiduMapViewManager extends ViewGroupManager<MapView> {
     public static final String REACT_CLASS = "myMapView";
-    public static boolean misLocation = true;
+    public static boolean misLocation = false;
     private ReadableArray childrenPoints;
     MapView mMapView = null;
 
@@ -60,6 +60,9 @@ public class BaiduMapViewManager extends ViewGroupManager<MapView> {
             }
         }
     }
+
+    // 定位
+
 
     @ReactProp(name="center")
     public void setCenter(MapView mapView, ReadableMap position) {

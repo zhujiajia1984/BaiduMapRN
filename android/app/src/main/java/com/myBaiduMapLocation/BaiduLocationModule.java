@@ -23,6 +23,7 @@ import android.util.Log;
 
 public class BaiduLocationModule extends ReactContextBaseJavaModule {
     public LocationClient mLocationClient = null;
+    private boolean misMapMode = false;
     public  ReactContext  mContext;
 
     //
@@ -44,39 +45,57 @@ public class BaiduLocationModule extends ReactContextBaseJavaModule {
                 double latitude = location.getLatitude();    //获取纬度信息
                 double longitude = location.getLongitude();    //获取经度信息
                 float radius = location.getRadius();    //获取定位精度，默认值为0.0f
+                double height = location.getAltitude();    //获取定位高度，单位米，GPS有效
+                float direction = location.getDirection(); //获取定位方向，单位度，GPS有效
+                int sn = location.getSatelliteNumber();     //获取卫星数量，GPS有效
+                float speed = location.getSpeed();          //获取速度，GPS有效
+                String time = location.getTime();           //定位时间
                 String locationDescribe = location.getLocationDescribe();
                 String addr = location.getAddrStr();    //获取详细地址信息
                 String desp = location.getLocTypeDescription();
-                Log.d("经度：", Double.toString(longitude));
-                Log.d("纬度：", Double.toString(latitude));
-                Log.d("定位精度：", Float.toString(radius));
-                Log.d("错误码：", Integer.toString(errorCode));
-                Log.d("错误描述：", desp);
-                Log.d("位置描述：", locationDescribe);
-                Log.d("详细位置", addr);
-                WritableMap params = Arguments.createMap();
-                params.putString("longitude",Double.toString(longitude));
-                params.putString("latitude",Double.toString(latitude));
-                params.putString("radius",Float.toString(radius));
-                params.putString("errorCode",Integer.toString(errorCode));
-                params.putString("errorDetail",desp);
-                params.putString("locationDescribe",locationDescribe);
-                params.putString("addr",addr);
-                sendEvent(BaiduLocationModule.this.mContext, "myEvent",params);
-                // 地图模式发送数据
-                if(BaiduMapViewManager.misLocation){
+//                Log.d("经度：", Double.toString(longitude));
+//                Log.d("纬度：", Double.toString(latitude));
+//                Log.d("定位精度：", Float.toString(radius));
+//                Log.d("错误码：", Integer.toString(errorCode));
+//                Log.d("错误描述：", desp);
+//                Log.d("位置描述：", locationDescribe);
+//                Log.d("详细位置", addr);
+                if(!BaiduLocationModule.this.misMapMode) {
+                    // 文字模式
+                    WritableMap params = Arguments.createMap();
+                    params.putString("longitude", Double.toString(longitude));
+                    params.putString("latitude", Double.toString(latitude));
+                    params.putString("radius", Float.toString(radius));
+                    params.putString("errorCode", Integer.toString(errorCode));
+                    params.putString("errorDetail", desp);
+                    params.putString("locationDescribe", locationDescribe);
+                    params.putString("addr", addr);
+                    params.putString("height", Double.toString(height));
+                    params.putString("direction", Float.toString(direction));
+                    params.putString("sn", Integer.toString(sn));
+                    params.putString("speed", Float.toString(speed));
+                    params.putString("time", time);
+                    sendEvent(BaiduLocationModule.this.mContext, "myEvent", params);
+                }else{
+                    // 地图模式
                     Log.d("mapIsLocation", "true");
                 }
             }else{
                 String desp = location.getLocTypeDescription();
-                Log.d("错误码：", Integer.toString(errorCode));
-                Log.d("错误描述：", desp);
-                WritableMap params = Arguments.createMap();
-                params.putString("longitude","0");
-                params.putString("latitude","0");
-                params.putString("errorDetail",desp);
-                params.putString("errorCode",Integer.toString(errorCode));
-                sendEvent(BaiduLocationModule.this.mContext, "myEvent",params);
+//                Log.d("错误码：", Integer.toString(errorCode));
+//                Log.d("错误描述：", desp);
+                if(!BaiduLocationModule.this.misMapMode){
+                    // 文字模式
+                    WritableMap params = Arguments.createMap();
+                    params.putString("longitude","0");
+                    params.putString("latitude","0");
+                    params.putString("errorDetail",desp);
+                    params.putString("errorCode",Integer.toString(errorCode));
+                    sendEvent(BaiduLocationModule.this.mContext, "myEvent",params);
+                }else{
+                    // 地图模式
+                    Log.d("mapIsLocation", "true");
+                }
             }
         }
     };
@@ -96,18 +115,35 @@ public class BaiduLocationModule extends ReactContextBaseJavaModule {
         option.setIsNeedLocationDescribe(true);
         option.setIsNeedAddress(true);
         this.mLocationClient.setLocOption(option);
+        this.misMapMode = false;
     }
 
     @ReactMethod
     public void startLocation() {
         // run
         this.mLocationClient.start();
+        this.misMapMode = false;
     }
 
     @ReactMethod
     public void stopLocation(){
         // start
         this.mLocationClient.stop();
+        this.misMapMode = false;
+    }
+
+    @ReactMethod
+    public void startMapLocation(){
+        // start
+        this.mLocationClient.start();
+        this.misMapMode = true;
+    }
+
+    @ReactMethod
+    public void stopMapLocation(){
+        // start
+        this.mLocationClient.stop();
+        this.misMapMode = true;
     }
 
 //    事件

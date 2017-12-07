@@ -1,0 +1,16 @@
+  {
+    data: [{
+      name: "",           //景点名称,string
+      time: "",           //定位时间,string
+      type: "",           //定位类型：gps/wifi/基站,string
+      longitude: 121.21,  // 经度,double
+      latitude: 31.11,    // 纬度,double
+      radius: 41.0,       // 准度,float
+      height: 10.1,       // 高度(GPS),double
+      speed: 11.2,        // 速度(GPS),float
+      direction: 12.1,    // 方向(GPS),float
+      sn: 17,             // 卫星数量(GPS),int
+      desc: "",           // 位置描述,string
+      address: "",        // 地址,string
+    }]
+  }

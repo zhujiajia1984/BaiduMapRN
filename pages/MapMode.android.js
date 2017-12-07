@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
+import MapLocationComponent from '../BaiduLocation';
 // import myImageView from '../MyView';
 import myMapView from '../native/MyMapView'
 
@@ -19,6 +20,15 @@ export default class MapMode extends Component {
 	}
 
 	//
+	componentDidMount() {
+		MapLocationComponent.startMapLocation();
+	}
+
+	componentWillUnmount() {
+		MapLocationComponent.stopMapLocation();
+	}
+
+	//
 	static navigationOptions = ({ navigation }) => ({
 		headerTitleStyle: { color: 'white', alignSelf: 'center', paddingRight: 70 },
 		headerTitle: "地图定位",
@@ -29,7 +39,7 @@ export default class MapMode extends Component {
 	render() {
 		return (
 			<View style={styles.container}>
-				<myMapView 
+				<myMapView  
 					style={styles.map}
 					center={this.state.center}
 					zoom={this.state.zoom}
