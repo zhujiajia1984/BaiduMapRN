@@ -53,6 +53,7 @@ public class BaiduLocationModule extends ReactContextBaseJavaModule {
                 String locationDescribe = location.getLocationDescribe();
                 String addr = location.getAddrStr();    //获取详细地址信息
                 String desp = location.getLocTypeDescription();
+                String type = location.getNetworkLocationType();
 //                Log.d("经度：", Double.toString(longitude));
 //                Log.d("纬度：", Double.toString(latitude));
 //                Log.d("定位精度：", Float.toString(radius));
@@ -75,6 +76,7 @@ public class BaiduLocationModule extends ReactContextBaseJavaModule {
                     params.putString("sn", Integer.toString(sn));
                     params.putString("speed", Float.toString(speed));
                     params.putString("time", time);
+                    params.putString("type", type);
                     sendEvent(BaiduLocationModule.this.mContext, "myEvent", params);
                 }else{
                     // 地图模式

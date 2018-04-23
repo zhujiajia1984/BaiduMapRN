@@ -15,13 +15,12 @@ import {
   TextInput,
   ToastAndroid,
   StatusBar,
-  BackHandler
+  BackHandler,
+  AppState
 } from 'react-native';
 
 
 // global
-var count = 0;
-var data = [];
 const mainColor = "#108ee9";
 const backTime = 2000;
 var lastBackBtnTime = "";
@@ -47,6 +46,7 @@ export default class Home extends Component < {} > {
       sn: "",
       speed: "",
       time: "",
+      type: "",
     };
     that = this;
   }
@@ -71,6 +71,7 @@ export default class Home extends Component < {} > {
                         sn: "",
                         speed: "",
                         time: "",
+                        type: "",
                       })
                     }
                     navigation.navigate('MapPage');
@@ -83,9 +84,8 @@ export default class Home extends Component < {} > {
   componentDidMount() {
     // 初始化定位并监听
     MapLocationComponent.initLocation(1000);
-    var that = this;
     DeviceEventEmitter.addListener('myEvent', function(e: Event) {
-      // console.log(e);
+      // console.log(e.type);
       that.setState({
         longitude: e.longitude,
         latitude: e.latitude,
@@ -99,62 +99,9 @@ export default class Home extends Component < {} > {
         sn: e.sn,
         speed: e.speed,
         time: e.time,
+        type: (e.type == null) ? 'gps' : 'network',
       })
 
-      // 30秒上传一次
-      count++;
-      if (count % 30 == 0) {
-        count = 0;
-
-        // 上传数据
-        let url = "https://weiquaninfo.cn/location/positions";
-        fetch(url, {
-            method: "POST",
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              key: that.state.name,
-              data: data
-            }),
-          })
-          .then(res => {
-            let contentType = res.headers.get("Content-Type");
-            if (res.status == 200 && contentType && contentType.includes("application/json")) {
-              return res.json();
-            } else {
-              throw new Error(`status:${res.status} contentType:${contentType}`);
-            }
-          })
-          .then(resJson => {
-            // 成功
-            if (resJson.code == 1) {
-              data = []; //数据清空
-              ToastAndroid.showWithGravity('数据上报成功', ToastAndroid.LONG, ToastAndroid.CENTER);
-            }
-            return resJson;
-          })
-          .catch(error => {
-            console.log(error);
-            Alert.alert(`获取服务器数据失败：${error.message}`);
-          })
-      } else {
-        // 数据组装
-        data.push({
-          long: e.longitude,
-          lat: e.latitude,
-          radius: e.radius,
-          detail: e.errorDetail,
-          desp: e.locationDescribe,
-          addr: e.addr,
-          errCode: e.errorCode,
-          height: e.height,
-          direction: e.direction,
-          sn: e.sn,
-          speed: e.speed,
-          time: e.time,
-        })
-      }
     });
 
     // 安卓返回键
@@ -170,34 +117,61 @@ export default class Home extends Component < {} > {
       return true;
     });
 
-    // 从服务器获取数据
-    // var url = "https://weiquaninfo.cn/login/getTableData";
-    // fetch(url, {
-    //     method: "GET",
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     }
-    //   })
-    //   .then(res => {
-    //     let contentType = res.headers.get("Content-Type");
-    //     if (res.status == 200 && contentType && contentType.includes("application/json")) {
-    //       return res.json();
-    //     } else {
-    //       throw new Error(`status:${res.status} contentType:${contentType}`);
-    //     }
-    //   })
-    //   .then(resJson => {
-    //     return resJson;
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //     Alert.alert(`获取服务器数据失败：${error.message}`);
-    //   })
+    // APP状态（前台后台）
+    AppState.addEventListener("change", this.onAppStateChange);
+  }
+
+  //
+  onAppStateChange(nextAppState) {
+    // console.log(nextAppState);
+    if (nextAppState == "background") {
+      // if (that.state.isOnLocation) {
+      //   MapLocationComponent.stopLocation();
+      // }
+    }
+  }
+
+  // 上传数据
+  sendServerData(sendData) {
+    // 上传数据
+    let url = "http://dingwei.doublecom.net/api/dingwei/baidu/add/";
+    fetch(url, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: sendData
+        }),
+      })
+      .then(res => {
+        let contentType = res.headers.get("Content-Type");
+        if (res.status == 200 && contentType && contentType.includes("application/json")) {
+          return res.json();
+        } else {
+          throw new Error(`status:${res.status} contentType:${contentType}`);
+        }
+      })
+      .then(resJson => {
+        // 成功
+        if (resJson.stat == "success") {
+          ToastAndroid.showWithGravity('数据上报成功', ToastAndroid.LONG, ToastAndroid.CENTER);
+        }
+        return resJson;
+      })
+      .catch(error => {
+        console.log(error);
+        Alert.alert(`上传服务器数据失败：${error.message}`);
+      })
   }
 
   // 退出时
   componentWillUnmount() {
+    if (that.state.isOnLocation) {
+      MapLocationComponent.stopLocation();
+    }
     BackHandler.removeEventListener('hardwareBackPress', () => {});
+    AppState.removeEventListener('change', this.onAppStateChange);
   }
 
   //
@@ -216,22 +190,34 @@ export default class Home extends Component < {} > {
   endLocation() {
     if (this.state.isOnLocation) {
       MapLocationComponent.stopLocation();
-      this.setState({
-        longitude: "",
-        latitude: "",
-        errorDetail: "",
-        radius: "",
-        locationDescribe: "",
-        addr: "",
-        errorCode: "",
-        height: "",
-        isOnLocation: false,
-        direction: "",
-        sn: "",
-        speed: "",
-        time: "",
-      })
+      this.setState({ isOnLocation: false });
     }
+  }
+
+  // 
+  sendLocation() {
+    if (!this.state.name) {
+      Alert.alert("请先输入景点名称");
+      return;
+    }
+    if (this.state.time == "") {
+      Alert.alert("请先定位");
+      return;
+    }
+    this.sendServerData([{
+      name: this.state.name,
+      time: this.state.time,
+      type: this.state.type,
+      longitude: parseFloat(this.state.longitude),
+      latitude: parseFloat(this.state.latitude),
+      radius: parseFloat(this.state.radius),
+      height: (this.state.type == "gps") ? parseFloat(this.state.height) : 0,
+      speed: (this.state.type == "gps") ? parseFloat(this.state.speed) : 0,
+      direction: (this.state.type == "gps") ? parseFloat(this.state.direction) : 0,
+      sn: (this.state.type == "gps") ? parseInt(this.state.sn) : 0,
+      desc: this.state.locationDescribe,
+      address: this.state.addr,
+    }])
   }
 
   //
@@ -250,7 +236,6 @@ export default class Home extends Component < {} > {
         ></StatusBar>
       <Text style={styles.itemText}>{`景点名称：${this.state.name}`}</Text>
         <Text style={styles.itemText}>{`定位结果：${this.state.errorDetail}`}</Text>
-        <Text style={styles.itemText}>{`错误码：${this.state.errorCode}`}</Text>
         <Text style={styles.itemText}>{`定位时间：${this.state.time}`}</Text>
         <Text style={styles.itemText}>{`经度：${this.state.longitude}`}</Text>
         <Text style={styles.itemText}>{`纬度：${this.state.latitude}`}</Text>
@@ -278,14 +263,17 @@ export default class Home extends Component < {} > {
             ></TextInput>
           </View>
         </View>
-        <View style={styles.btnWrapper}>
-          <TouchableOpacity style={styles.primaryBtn} onPress={this.startLocation.bind(this)}>
-            <Text style={styles.btnTextBegin}>开     始     定     位</Text>
-          </TouchableOpacity>
+        <View style={{display:'flex', flexDirection:'row'}}>
+            <TouchableOpacity style={styles.defaultBtn} onPress={this.startLocation.bind(this)}>
+              <Text style={styles.btnTextEnd}>开     始     定     位</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.defaultBtn} onPress={this.endLocation.bind(this)}>
+              <Text style={styles.btnTextEnd}>停     止     定     位</Text>
+            </TouchableOpacity>
         </View>
         <View style={styles.btnWrapper}>
-          <TouchableOpacity style={styles.defaultBtn} onPress={this.endLocation.bind(this)}>
-            <Text style={styles.btnTextEnd}>结     束     定     位</Text>
+          <TouchableOpacity style={styles.primaryBtn} onPress={this.sendLocation.bind(this)}>
+            <Text style={styles.btnTextBegin}>上     传</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -319,6 +307,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     borderRadius: 5,
+    marginTop: 10,
   },
   defaultBtn: {
     padding: 10,
@@ -331,6 +320,8 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderColor: '#dddddd',
     borderWidth: 1,
+    marginLeft: 10,
+    marginRight: 10,
   },
   btnTextBegin: {
     color: "white",
